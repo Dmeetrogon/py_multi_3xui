@@ -1,7 +1,7 @@
 from py3xui import AsyncApi, Client
+from server.server import Server
 from exceptions.exceptions import ClientNotFoundException
 from server_data_manager import ServerDataManager
-from server.server import Server
 import uuid
 class ConnectionsManager:
     async def choose_best_server(self,servers) -> Server:

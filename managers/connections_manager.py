@@ -8,7 +8,7 @@ class ConnectionsManager:
         previous_best_server_stats = (servers[0],0)
         for server in servers:
             current_speed = server.internet_speed
-            CLIENTS_PER_GB = 16 #16 clients can use 1 gb of the traffic speed with comfort
+            CLIENTS_PER_GB = 16 #16 clients can use 1 gb of the traffic speed with comfort|16 людей могут использовать 1 гб траффика с комфортом
             max_client_amount = current_speed * CLIENTS_PER_GB
             clients_on_server = 0
             api = AsyncApi(host=server.host,password=server.password,username=server.username,token=server.secret_token)
@@ -19,6 +19,8 @@ class ConnectionsManager:
                     clients_on_server = clients_on_server + len(inbound.settings.clients)
             except:
                 pass
+            if clients_on_server >= max_client_amount:
+                continue
             current_server_stats = (server, clients_on_server)
             if current_server_stats[1] <= previous_best_server_stats:
                 previous_best_server_stats = current_server_stats

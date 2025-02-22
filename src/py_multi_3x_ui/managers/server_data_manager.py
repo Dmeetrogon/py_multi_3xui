@@ -1,6 +1,6 @@
-from exceptions.exceptions import HostAlreadyExistException
+from src.py_multi_3x_ui.exceptions.exceptions import HostAlreadyExistException
 from contextlib import closing
-from server.server import Server
+from src.py_multi_3x_ui.server.server import Server
 import os
 import sqlite3
 class ServerDataManager:

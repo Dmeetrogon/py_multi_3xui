@@ -41,6 +41,10 @@ class ConnectionsManager:
              if client.email == client_email:
                  await self.delete_client_by_uuid(client.id,inbound_id,server)
          raise ClientNotFoundException(f'Client with email {client_email} not found')
+    async def send_backup(self,server:Server = None):
+        connection = await self.__get_connection(server)
+        await connection.login()
+        connection.database.export()
     async def __get_connection(self,server:Server) -> AsyncApi:
         if server is None:
             raise Exception("Empty argument: server")
@@ -49,10 +53,6 @@ class ConnectionsManager:
             return connection
         elif self.server is not None:
             return self.connection
-    async def send_backup(self,server:Server = None):
-        connection = await self.__get_connection(server)
-        await connection.login()
-        connection.database.export()
     @staticmethod
     async def choose_best_server(servers) -> Server:
         previous_best_server_stats = (servers[0], 0)
@@ -77,7 +77,3 @@ class ConnectionsManager:
                 previous_best_server_stats = current_server_stats
         best_server = previous_best_server_stats[1]
         return best_server
-
-
-
-

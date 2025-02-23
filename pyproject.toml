@@ -3,11 +3,11 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 [project]
 name = "py_multi_3xui"
-version = "0.0.2"
+version = "0.0.3"
 authors = [
-  { name="Dmeet", email="someemail@example.com" },
+  { name="Dmeetrogon", email="dmeetrogon@example.com" },
 ]
-description = "Test"
+description = "module for managing multiple panels"
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [

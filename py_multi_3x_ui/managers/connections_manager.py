@@ -1,6 +1,6 @@
 from py3xui import AsyncApi, Client
-from src.py_multi_3x_ui.server.server import Server
-from src.py_multi_3x_ui.exceptions.exceptions import ClientNotFoundException
+from py_multi_3x_ui.server.server import Server
+from py_multi_3x_ui.exceptions.exceptions import ClientNotFoundException
 from server_data_manager import ServerDataManager
 import uuid
 class ConnectionsManager:

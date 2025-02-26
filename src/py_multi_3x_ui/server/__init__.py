@@ -1,1 +1,1 @@
-from src.py_multi_3x_ui.server.server import Server
+from server import Server

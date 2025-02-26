@@ -22,7 +22,7 @@ dependencies = [
     "six>=1.17.0",
 ]
 [tool.setuptools]
-package-dir = "src"
+package-dir = {"" = "src"}
 [tool.setuptools.packages.find]
 where = ["src"]
 [project.urls]

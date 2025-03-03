@@ -3,7 +3,7 @@ requires = ["setuptools>=42","wheel"]
 build-backend = "setuptools.build_meta"
 [project]
 name = "py_multi_3xui"
-version = "0.0.5"
+version = "0.0.11"
 authors = [
   { name="Dmeetrogon", email="dmeetrogon@example.com" },
 ]
@@ -21,10 +21,6 @@ dependencies = [
     "py3xui>=0.3.4",
     "six>=1.17.0",
 ]
-[tool.setuptools]
-package-dir = {"" = "src"}
-[tool.setuptools.packages.find]
-where = ["src"]
 [project.urls]
 Homepage = "https://github.com/Dmeetrogon/py_multi_3xui"
 Issues = "https://github.com/Dmeetrogon/py_multi_3xui/issues"

@@ -1,5 +1,6 @@
 from py_multi_3x_ui.exceptions.exceptions import HostAlreadyExistException
 from contextlib import closing
+from py3xui import AsyncApi
 from py_multi_3x_ui.server.server import Server
 import os
 import sqlite3
@@ -53,4 +54,25 @@ class ServerDataManager:
                     servers_list.append(Server.sqlite_answer_to_instance(raw_tuple))
                 connection.commit()
                 return servers_list
+    async def choose_best_server_by_country(self,country:str) -> Server:
+        servers =  self.get_servers_by_country(country)
+        best_server = await self.choose_best_server(servers)
+        return  best_server
+    @staticmethod
+    async def choose_best_server(servers) -> Server:
+        previous_best_server_stats = (servers[0], 0)
+        for server in servers:
+            clients_on_server = 0
+            api = server.connection
+            try:
+                inbounds = await api.inbound.get_list()
+                for inbound in inbounds:
+                    clients_on_server = clients_on_server + len(inbound.settings.clients)
+            except:
+                pass
+            current_server_stats = (server, clients_on_server)
+            if current_server_stats[1] <= previous_best_server_stats:
+                previous_best_server_stats = current_server_stats
+        best_server = previous_best_server_stats[1]
+        return best_server
 

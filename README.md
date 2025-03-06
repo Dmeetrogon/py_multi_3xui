@@ -80,6 +80,8 @@ server.delete_client_by_uuid(client_uuid=uuid,inbound_id=inbound_id)
  - - -
 Please report any bugs or feature requests by opening an issue on [GitHub issues](https://github.com/Dmeetrogon/py_multi_3xui/issues)
 
+## Donate and support
+**via [CryptoBot](https://t.me/send?start=IVFCR3tEjcyk)**
 
 
 

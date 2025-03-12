@@ -1,2 +1,1 @@
-from connections_manager import ConnectionsManager
-from server_data_manager import ServerDataManager
+from servers_manager import ServerDataManager

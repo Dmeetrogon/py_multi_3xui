@@ -1,5 +1,6 @@
 import requests
 from py_multi_3x_ui.exceptions.exceptions import ClientNotFoundException
+from py_multi_3x_ui.tools.generator import RandomStuffGenerator as rsg
 from py3xui import Client,AsyncApi
 import uuid
 class Server:
@@ -45,15 +46,44 @@ class Server:
         return True
     def __str__(self):
         return f"{self.host}\n{self.username}\n{self.password}\n{self.secret_token}\n{self.location}\n{self.internet_speed}"
-    async def add_client(self,client_email:str,inbound_id = 4,expiry_time = 30) -> None:
-         connection =  self.connection
+    @staticmethod
+    async def generate_client(self,client_email:str
+                         ,inbound_id = 4
+                         ,expiry_time = 30
+                         ,limit_ip = 0
+                         ,total_gb = 0
+                         ,up = 0
+                         ,down = 0
+                         ) -> Client:
          client = Client(id=str(uuid.uuid4()),
                          email=client_email,
                          expiry_time=expiry_time,
                          enable=True,
                          flow="xtls-rprx-vision",
+                         inbound_id=inbound_id,
+                         limit_ip=limit_ip,
+                         total_gb=total_gb,
+                         up=up,
+                         down=down
                          )
-         connection.client.add(inbound_id=inbound_id,client=[client])
+         return client
+    async def add_client(self,client:Client):
+        connection = self.connection
+        connection.client.add(inbound_id=client.inbound_id,clients=[client])
+    async def get_config(self,client:Client):
+        connection = self.connection
+        inbound = await  connection.inbound.get_by_id(inbound_id=client.inbound_id)
+        public_key = inbound.stream_settings.reality_settings.get("settings").get("publicKey")
+        website_name = inbound.stream_settings.reality_settings.get("serverNames")[0]
+        short_id = inbound.stream_settings.reality_settings.get("shortIds")[0]
+        user_uuid = str(uuid.uuid4())
+
+        connection_string = (
+            f"vless://{user_uuid}@{self.host}:443"
+            f"?type=tcp&security=reality&pbk={public_key}&fp=random&sni={website_name}"
+            f"&sid={short_id}&spx=%2F#DeminVPN-{client.email}"
+        )
+        return connection_string
     async def update_client(self, updated_client:Client) -> None:
         connection = self.connection
         connection.client.update(updated_client.id,updated_client)

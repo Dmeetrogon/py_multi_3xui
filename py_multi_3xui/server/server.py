@@ -1,6 +1,5 @@
 import requests
-from py_multi_3x_ui.exceptions.exceptions import ClientNotFoundException
-from py_multi_3x_ui.tools.generator import RandomStuffGenerator as rsg
+from py_multi_3xui.exceptions.exceptions import ClientNotFoundException
 from py3xui import Client,AsyncApi
 import uuid
 class Server:
@@ -47,7 +46,7 @@ class Server:
     def __str__(self):
         return f"{self.host}\n{self.username}\n{self.password}\n{self.secret_token}\n{self.location}\n{self.internet_speed}"
     @staticmethod
-    async def generate_client(self,client_email:str
+    async def generate_client(client_email:str
                          ,inbound_id = 4
                          ,expiry_time = 30
                          ,limit_ip = 0
@@ -101,3 +100,5 @@ class Server:
     async def send_backup(self) -> None:
         connection = self.connection
         connection.database.export()
+
+

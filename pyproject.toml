@@ -18,8 +18,8 @@ classifiers = [
 ]
 keywords = ["vpn","3x-ui"]
 dependencies = [
-    "py3xui==0.3.4,<0.4.0",
-    "six==1.17.0",
+    "py3xui>=0.3.4",
+    "six>=1.17.0",
 ]
 [project.urls]
 Homepage = "https://github.com/Dmeetrogon/py_multi_3xui"

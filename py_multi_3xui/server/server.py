@@ -1,6 +1,6 @@
 import requests
 from py_multi_3xui.exceptions.exceptions import ClientNotFoundException
-from py3xui import Client,AsyncApi
+from py3xui import Client, AsyncApi, Inbound
 import uuid
 class Server:
     def __init__(self,location:str,host:str,username:str,password:str,internet_speed:int,secret_token:str = None):
@@ -83,6 +83,8 @@ class Server:
             f"&sid={short_id}&spx=%2F#DeminVPN-{client.email}"
         )
         return connection_string
+    async def get_inbounds(self) -> list[Inbound]:
+        return self.connection.inbound.get_list()
     async def update_client(self, updated_client:Client) -> None:
         connection = self.connection
         connection.client.update(updated_client.id,updated_client)

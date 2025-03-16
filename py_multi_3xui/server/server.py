@@ -76,7 +76,7 @@ class Server:
         website_name = inbound.stream_settings.reality_settings.get("serverNames")[0]
         short_id = inbound.stream_settings.reality_settings.get("shortIds")[0]
         user_uuid = str(uuid.uuid4())
-
+        #vless всегда слушает на 443 порту(по крайней мере адекватне люди именно так настраивают vless)
         connection_string = (
             f"vless://{user_uuid}@{self.host}:443"
             f"?type=tcp&security=reality&pbk={public_key}&fp=random&sni={website_name}"
@@ -85,20 +85,26 @@ class Server:
         return connection_string
     async def get_inbounds(self) -> list[Inbound]:
         return self.connection.inbound.get_list()
+    async def get_inbound_by_id(self,inbound_id: int) -> Inbound:
+        inbound = self.connection.inbound.get_by_id(inbound_id)
+        return inbound
+    async def get_client_by_email(self,email :str) -> Client:
+        client = self.connection.client.get_by_email(email)
+        return client
     async def update_client(self, updated_client:Client) -> None:
         connection = self.connection
         connection.client.update(updated_client.id,updated_client)
-    async def delete_client_by_uuid(self,client_uuid:str,inbound_id = 4) -> None:
+    async def delete_client_by_uuid(self,client_uuid:str,
+                                    inbound_id:int) -> None:
          connection = self.connection
          connection.client.delete(inbound_id=inbound_id,client_uuid=client_uuid)
-    async def delete_client_by_email(self,client_email:str,inbound_id = 4) -> None:
+    async def delete_client_by_email(self,client_email:str,
+                                     inbound_id:int) -> None:
          connection =  self.connection
-         inbound = await connection.inbound.get_by_id(inbound_id)
-         all_clients = inbound.settings.clients
-         for client in all_clients:
-             if client.email == client_email:
-                 await self.delete_client_by_uuid(client.id,inbound_id)
-         raise ClientNotFoundException(f'Client with email {client_email} not found')
+         client = await connection.client.get_by_email(client_email)
+         client_uuid = client.id
+         inbound_id = client.inbound_id
+         await self.delete_client_by_uuid(client_uuid,inbound_id)
     async def send_backup(self) -> None:
         connection = self.connection
         connection.database.export()

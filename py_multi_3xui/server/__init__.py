@@ -1,1 +1,1 @@
-from server import Server
+from py_multi_3xui.server.server import Server

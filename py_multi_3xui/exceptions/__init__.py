@@ -1,1 +1,1 @@
-from exceptions import ClientNotFoundException,HostAlreadyExistException,InvalidConfigException
+from py_multi_3xui.exceptions.exceptions import ClientNotFoundException,HostAlreadyExistException,InvalidConfigException

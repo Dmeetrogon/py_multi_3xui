@@ -1,6 +1,5 @@
 from py_multi_3xui.exceptions.exceptions import HostAlreadyExistException
 from contextlib import closing
-from py3xui import AsyncApi
 from py_multi_3xui.server.server import Server
 import os
 import sqlite3

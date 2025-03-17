@@ -1,5 +1,5 @@
-from py_multi_3xui.server.server import Server
-from py_multi_3xui.managers.servers_manager import ServerDataManager
-from py_multi_3xui.exceptions.exceptions import ClientNotFoundException,HostAlreadyExistException,InvalidConfigException
-from py_multi_3xui.tools.generator import RandomStuffGenerator
+from py_multi_3xui.server import Server
+from py_multi_3xui.managers  import ServerDataManager
+from py_multi_3xui.exceptions import ClientNotFoundException,HostAlreadyExistException,InvalidConfigException
+from py_multi_3xui.tools import RandomStuffGenerator
 

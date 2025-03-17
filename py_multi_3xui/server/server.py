@@ -1,5 +1,4 @@
 import requests
-from py_multi_3xui.exceptions.exceptions import ClientNotFoundException
 from py3xui import Client, AsyncApi, Inbound
 import uuid
 class Server:

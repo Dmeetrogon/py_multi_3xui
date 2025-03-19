@@ -33,6 +33,12 @@ class ServerDataManager:
                 connection.commit()
                 raw_tuple = cursor.fetchone()
                 return Server.sqlite_answer_to_instance(raw_tuple)
+    def get_available_countries(self):
+        with closing(sqlite3.connect(f"{self.db_name}.db")) as connection:
+            with closing(connection.cursor()) as cursor:
+                cursor.execute("SELECT DISTINCT country FROM servers")
+                available = [row[0] for row in cursor.fetchall()]
+                return available
     def get_servers_by_country(self,country:str) -> list[Server]:
         with closing(sqlite3.connect(f"{self.db_name}.db")) as connection:
             with closing(connection.cursor()) as cursor:

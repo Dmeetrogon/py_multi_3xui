@@ -3,9 +3,9 @@ from contextlib import closing
 from py_multi_3xui.server.server import Server
 import sqlite3
 class ServerDataManager:
-    def __init__(self,db_name = "servers"):
-        self.db_name = db_name + ".db"
-        with sqlite3.connect(db_name) as con:
+    def __init__(self,name = "servers"):
+        self.db_name = name + ".db"
+        with sqlite3.connect(self.db_name) as con:
             cursor = con.cursor()
             cursor.execute("CREATE TABLE IF NOT EXISTS servers (country STRING,host STRING PRIMARY KEY,user STRING,password STRING,secret_token STRING,internet_speed INT)")
             con.commit()

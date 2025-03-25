@@ -1,16 +1,19 @@
 from py_multi_3xui.exceptions.exceptions import HostAlreadyExistException
+import os
 from contextlib import closing
 from py_multi_3xui.server.server import Server
 import sqlite3
 class ServerDataManager:
-    def __init__(self,name = "servers"):
-        self.db_name = name + ".db"
-        with sqlite3.connect(self.db_name) as con:
+    def __init__(self,path = "servers.db"):
+        if os.path.exists(path):
+            self.db_path = path
+
+        with sqlite3.connect(self.db_path) as con:
             cursor = con.cursor()
             cursor.execute("CREATE TABLE IF NOT EXISTS servers (country STRING,host STRING PRIMARY KEY,user STRING,password STRING,secret_token STRING,internet_speed INT)")
             con.commit()
     def add_server(self,server: Server):
-        with closing(sqlite3.connect(f"{self.db_name}")) as connection:
+        with closing(sqlite3.connect(f"{self.db_path}")) as connection:
             with closing(connection.cursor()) as cursor:
                 try:
                     cursor.execute(f"INSERT INTO servers VALUES(? ,? ,? ,? ,?, ?)", (
@@ -19,25 +22,25 @@ class ServerDataManager:
                 except sqlite3.IntegrityError:
                     raise HostAlreadyExistException(f"Host {server.host} is already exist in database")
     def delete_server(self, host:str):
-        with closing(sqlite3.connect(f"{self.db_name}")) as connection:
+        with closing(sqlite3.connect(f"{self.db_path}")) as connection:
             with closing(connection.cursor()) as cursor:
                 cursor.execute(f"DELETE FROM servers WHERE host = '{host}'")
                 connection.commit()
     def get_server_by_host(self,host:str) -> Server:
-        with closing(sqlite3.connect(f"{self.db_name}")) as connection:
+        with closing(sqlite3.connect(f"{self.db_path}")) as connection:
             with closing(connection.cursor()) as cursor:
                 cursor.execute(f"SELECT * FROM servers WHERE host = '{host}'")
                 connection.commit()
                 raw_tuple = cursor.fetchone()
                 return Server.sqlite_answer_to_instance(raw_tuple)
     def get_available_countries(self):
-        with closing(sqlite3.connect(f"{self.db_name}")) as connection:
+        with closing(sqlite3.connect(f"{self.db_path}")) as connection:
             with closing(connection.cursor()) as cursor:
                 cursor.execute("SELECT DISTINCT country FROM servers")
                 available = [row[0] for row in cursor.fetchall()]
                 return available
     def get_servers_by_country(self,country:str) -> list[Server]:
-        with closing(sqlite3.connect(f"{self.db_name}")) as connection:
+        with closing(sqlite3.connect(f"{self.db_path}")) as connection:
             with closing(connection.cursor()) as cursor:
                 cursor.execute(f"SELECT * FROM servers WHERE country = '{country}'")
                 raw_tuples = cursor.fetchall()
@@ -47,7 +50,7 @@ class ServerDataManager:
                 connection.commit()
                 return servers_list
     def get_all_servers(self):
-        with closing(sqlite3.connect(f"{self.db_name}")) as connection:
+        with closing(sqlite3.connect(f"{self.db_path}")) as connection:
             with closing(connection.cursor()) as cursor:
                 cursor.execute(f"SELECT * FROM servers")
                 raw_tuples = cursor.fetchall()

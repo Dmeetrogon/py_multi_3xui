@@ -5,9 +5,7 @@ from py_multi_3xui.server.server import Server
 import sqlite3
 class ServerDataManager:
     def __init__(self,path = "servers.db"):
-        if os.path.exists(path):
-            self.db_path = path
-
+        self.db_path = path
         with sqlite3.connect(self.db_path) as con:
             cursor = con.cursor()
             cursor.execute("CREATE TABLE IF NOT EXISTS servers (country STRING,host STRING PRIMARY KEY,user STRING,password STRING,secret_token STRING,internet_speed INT)")
@@ -65,7 +63,8 @@ class ServerDataManager:
         return  best_server
     @staticmethod
     async def choose_best_server(servers) -> Server:
-        previous_best_server_stats = (servers[0], 0)
+        previous_best_server_stats = {"server":servers[0],
+                                      "client_count":0}
         for server in servers:
             clients_on_server = 0
             api = server.connection
@@ -75,9 +74,10 @@ class ServerDataManager:
                     clients_on_server = clients_on_server + len(inbound.settings.clients)
             except:
                 pass
-            current_server_stats = (server, clients_on_server)
-            if current_server_stats[1] <= previous_best_server_stats:
-                previous_best_server_stats = current_server_stats
-        best_server = previous_best_server_stats[1]
+            current_best_server = {"server":server,
+                                    "client_count":clients_on_server}
+            if current_best_server["client_count"] <= previous_best_server_stats["client_count"]:
+                previous_best_server_stats = current_best_server
+        best_server = previous_best_server_stats["server"]
         return best_server
 

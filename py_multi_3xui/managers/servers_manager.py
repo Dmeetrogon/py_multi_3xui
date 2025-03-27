@@ -14,19 +14,19 @@ class ServerDataManager:
             with closing(connection.cursor()) as cursor:
                 try:
                     cursor.execute(f"INSERT INTO servers VALUES(? ,? ,? ,? ,?, ?)", (
-                    server.location, server.host, server.username, server.password, server.secret_token,server.internet_speed))
+                    server.location, server.host, server.username, server.password, server.internet_speed,server.secret_token))
                     connection.commit()
                 except sqlite3.IntegrityError:
                     raise HostAlreadyExistException(f"Host {server.host} is already exist in database")
     def delete_server(self, host:str):
         with closing(sqlite3.connect(f"{self.db_path}")) as connection:
             with closing(connection.cursor()) as cursor:
-                cursor.execute(f"DELETE FROM servers WHERE host = '{host}'")
+                cursor.execute(f"DELETE FROM servers WHERE host = ?",host)
                 connection.commit()
     def get_server_by_host(self,host:str) -> Server:
         with closing(sqlite3.connect(f"{self.db_path}")) as connection:
             with closing(connection.cursor()) as cursor:
-                cursor.execute(f"SELECT * FROM servers WHERE host = '{host}'")
+                cursor.execute(f"SELECT * FROM servers WHERE host = ?",host)
                 connection.commit()
                 raw_tuple = cursor.fetchone()
                 return Server.sqlite_answer_to_instance(raw_tuple)
@@ -39,7 +39,7 @@ class ServerDataManager:
     def get_servers_by_country(self,country:str) -> list[Server]:
         with closing(sqlite3.connect(f"{self.db_path}")) as connection:
             with closing(connection.cursor()) as cursor:
-                cursor.execute(f"SELECT * FROM servers WHERE location = '{country}'")
+                cursor.execute(f"SELECT * FROM servers WHERE location = ?",country)
                 raw_tuples = cursor.fetchall()
                 servers_list = []
                 for raw_tuple in raw_tuples:

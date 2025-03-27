@@ -1,5 +1,5 @@
-import requests
 from py3xui import Client, Api, Inbound
+from py_multi_3xui import RegularExpressions as regular_expressions
 import uuid
 class Server:
     def __init__(self,location:str,host:str,username:str,password:str,internet_speed:int,secret_token:str = None):
@@ -68,9 +68,9 @@ class Server:
         website_name = inbound.stream_settings.reality_settings.get("serverNames")[0]
         short_id = inbound.stream_settings.reality_settings.get("shortIds")[0]
         user_uuid = str(uuid.uuid4())
-        #vless всегда слушает на 443 порту(по крайней мере адекватне люди именно так настраивают vless)
+        full_host_name = regular_expressions.get_host(self.host)
         connection_string = (
-            f"vless://{user_uuid}@{self.host}:443"
+            f"vless://{user_uuid}@{full_host_name}:443"#vless always listens on 443 port(normal ppl do like that)
             f"?type=tcp&security=reality&pbk={public_key}&fp=random&sni={website_name}"
             f"&sid={short_id}&spx=%2F#DeminVPN-{client.email}"
         )

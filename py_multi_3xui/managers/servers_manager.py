@@ -21,12 +21,12 @@ class ServerDataManager:
     def delete_server(self, host:str):
         with closing(sqlite3.connect(f"{self.db_path}")) as connection:
             with closing(connection.cursor()) as cursor:
-                cursor.execute(f"DELETE FROM servers WHERE host = ?",host)
+                cursor.execute(f"DELETE FROM servers WHERE host = ?",(host,))
                 connection.commit()
     def get_server_by_host(self,host:str) -> Server:
         with closing(sqlite3.connect(f"{self.db_path}")) as connection:
             with closing(connection.cursor()) as cursor:
-                cursor.execute(f"SELECT * FROM servers WHERE host = ?",host)
+                cursor.execute(f"SELECT * FROM servers WHERE host = ?",(host,))
                 connection.commit()
                 raw_tuple = cursor.fetchone()
                 return Server.sqlite_answer_to_instance(raw_tuple)
@@ -36,10 +36,10 @@ class ServerDataManager:
                 cursor.execute("SELECT DISTINCT location FROM servers")
                 available = [row[0] for row in cursor.fetchall()]
                 return available
-    def get_servers_by_country(self,country:str) -> list[Server]:
+    def get_servers_by_location(self,location:str) -> list[Server]:
         with closing(sqlite3.connect(f"{self.db_path}")) as connection:
             with closing(connection.cursor()) as cursor:
-                cursor.execute(f"SELECT * FROM servers WHERE location = ?",country)
+                cursor.execute(f"SELECT * FROM servers WHERE location = ?",(location,))
                 raw_tuples = cursor.fetchall()
                 servers_list = []
                 for raw_tuple in raw_tuples:
@@ -56,8 +56,8 @@ class ServerDataManager:
                     servers_list.append(Server.sqlite_answer_to_instance(raw_tuple))
                 connection.commit()
                 return servers_list
-    async def choose_best_server_by_country(self,country:str) -> Server:
-        servers =  self.get_servers_by_country(country)
+    async def choose_best_server_by_location(self,location:str) -> Server:
+        servers =  self.get_servers_by_location(location)
         best_server = await self.choose_best_server(servers)
         return  best_server
     @staticmethod

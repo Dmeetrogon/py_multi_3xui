@@ -1,5 +1,4 @@
 from py_multi_3xui.exceptions.exceptions import HostAlreadyExistException
-import os
 from contextlib import closing
 from py_multi_3xui.server.server import Server
 import sqlite3
@@ -8,7 +7,7 @@ class ServerDataManager:
         self.db_path = path
         with sqlite3.connect(self.db_path) as con:
             cursor = con.cursor()
-            cursor.execute("CREATE TABLE IF NOT EXISTS servers (country STRING,host STRING PRIMARY KEY,user STRING,password STRING,secret_token STRING,internet_speed INT)")
+            cursor.execute("CREATE TABLE IF NOT EXISTS servers (location STRING,host STRING PRIMARY KEY,user STRING,password STRING,internet_speed INT,secret_token STRING)")
             con.commit()
     def add_server(self,server: Server):
         with closing(sqlite3.connect(f"{self.db_path}")) as connection:
@@ -34,13 +33,13 @@ class ServerDataManager:
     def get_available_countries(self):
         with closing(sqlite3.connect(f"{self.db_path}")) as connection:
             with closing(connection.cursor()) as cursor:
-                cursor.execute("SELECT DISTINCT country FROM servers")
+                cursor.execute("SELECT DISTINCT location FROM servers")
                 available = [row[0] for row in cursor.fetchall()]
                 return available
     def get_servers_by_country(self,country:str) -> list[Server]:
         with closing(sqlite3.connect(f"{self.db_path}")) as connection:
             with closing(connection.cursor()) as cursor:
-                cursor.execute(f"SELECT * FROM servers WHERE country = '{country}'")
+                cursor.execute(f"SELECT * FROM servers WHERE location = '{country}'")
                 raw_tuples = cursor.fetchall()
                 servers_list = []
                 for raw_tuple in raw_tuples:

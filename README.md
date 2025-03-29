@@ -144,7 +144,7 @@ Please report any bugs or feature requests by opening an issue on [GitHub issues
 ## Donate and support
 _If this project was helpful for you, you may wish star it or donate ^^_
 
-* **via [CryptoBot](https://t.me/send?start=IVFCR3tEjcyk)**\
+* **via [CryptoBot](https://t.me/send?start=IVFCR3tEjcyk)**
 * **via Ton: `UQCOKDO9dRYNe3Us8FDK2Ctz6B4fhsonaoKpK93bqneFAyJL`**
 
 

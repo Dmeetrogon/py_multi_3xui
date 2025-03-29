@@ -1,6 +1,8 @@
 from py3xui import Client,Inbound, AsyncApi
+
 from py_multi_3xui.tools.regular_expressions import RegularExpressions as regularExpressions
 from py_multi_3xui.managers.auth_cookie_manager import AuthCookieManager as cookieManager
+
 import uuid
 class Server:
     def __init__(self,location:str,host:str,username:str,password:str,internet_speed:int,secret_token:str = None):
@@ -31,7 +33,7 @@ class Server:
         return self.__internet_speed
     @property
     def connection(self):
-        cookie = cookieManager.get_auth_cookie(server=self)
+        cookie = cookieManager.get_auth_cookie(server_params=vars(self))
         self.__connection.session = cookie
         return self.__connection
     @staticmethod
@@ -39,6 +41,7 @@ class Server:
         return Server(answer[0],answer[1],answer[2],answer[3],answer[4],answer[5])
     def __str__(self):
         return f"{self.host}\n{self.username}\n{self.password}\n{self.secret_token}\n{self.location}\n{self.internet_speed}"
+
     @staticmethod
     def generate_client(client_email:str
                          ,inbound_id = 4

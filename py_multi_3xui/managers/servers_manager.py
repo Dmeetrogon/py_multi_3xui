@@ -1,7 +1,10 @@
 from py_multi_3xui.exceptions.exceptions import HostAlreadyExistException
-from contextlib import closing
 from py_multi_3xui.server.server import Server
+
+from contextlib import closing
+
 import sqlite3
+
 class ServerDataManager:
     def __init__(self,path = "servers.db"):
         self.db_path = path

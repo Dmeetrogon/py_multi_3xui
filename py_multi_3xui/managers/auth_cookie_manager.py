@@ -6,12 +6,12 @@ from py3xui import Api
 
 class AuthCookieManager:
     @staticmethod
-    def get_auth_cookie(server_params:dict) -> str:
+    def get_auth_cookie(server_dict:dict) -> str:
 
-        host = server_params["host"]
-        password = server_params["password"]
-        username = server_params["username"]
-        secret_token = server_params["secret_token"]
+        host = server_dict["host"]
+        password = server_dict["password"]
+        username = server_dict["username"]
+        secret_token = server_dict["secret_token"]
 
         cache = dc.Cache("/temp/cookie_cache")
         cached = cache.get(host)

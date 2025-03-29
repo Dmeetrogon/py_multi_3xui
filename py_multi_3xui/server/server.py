@@ -33,15 +33,37 @@ class Server:
         return self.__internet_speed
     @property
     def connection(self):
-        cookie = cookieManager.get_auth_cookie(server_params=vars(self))
+        cookie = cookieManager.get_auth_cookie(server_dict=self.to_dict())
         self.__connection.session = cookie
         return self.__connection
+    def to_dict(self) -> dict[str,str|int|None]:
+        return {
+            "location":self.location,
+            "host":self.host,
+            "password":self.password,
+            "username":self.username,
+            "secret_token":self.secret_token,
+            "internet_speed":self.internet_speed
+        }
+    def __str__(self):
+        return f"{self.host}\n{self.username}\n{self.password}\n{self.secret_token}\n{self.location}\n{self.internet_speed}"
     @staticmethod
     def sqlite_answer_to_instance(answer:tuple):
         return Server(answer[0],answer[1],answer[2],answer[3],answer[4],answer[5])
-    def __str__(self):
-        return f"{self.host}\n{self.username}\n{self.password}\n{self.secret_token}\n{self.location}\n{self.internet_speed}"
-
+    @staticmethod
+    def from_dict(server:dict[str,str|int|None]):
+        location = server["location"]
+        host = server["host"]
+        password = server["password"]
+        username = server["username"]
+        secret_token = server["secret_token"]
+        internet_speed = server["internet_speed"]
+        return Server(host=host,
+                      location=location,
+                      username=username,
+                      password=password,
+                      secret_token=secret_token,
+                      internet_speed=internet_speed)
     @staticmethod
     def generate_client(client_email:str
                          ,inbound_id = 4

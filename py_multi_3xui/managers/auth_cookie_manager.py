@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 class AuthCookieManager:
     @staticmethod
     def get_auth_cookie(server_dict:dict) -> str:
-        logger.debug(f"Getting auth_cookie for {server_dict["host"]}")
+        logger.debug(f"Get auth_cookie for {server_dict["host"]}")
         host = server_dict["host"]
         password = server_dict["password"]
         username = server_dict["username"]

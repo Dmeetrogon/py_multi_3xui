@@ -147,7 +147,7 @@ class Server:
         connection.client.update(updated_client.id,updated_client)
     def delete_client_by_uuid(self,client_uuid:str,
                                     inbound_id:int) -> None:
-        logger.debug("delete client by uuid")
+        logger.debug("delete client via uuid")
         connection = self.connection
         connection.client.delete(inbound_id=inbound_id,client_uuid=client_uuid)
     async def delete_client_by_email(self,client_email:str) -> None:

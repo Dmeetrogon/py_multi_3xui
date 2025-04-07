@@ -107,6 +107,6 @@ class ServerDataManager:
                                     "client_count":clients_on_server}
             if current_best_server["client_count"] <= previous_best_server_stats["client_count"]:
                 previous_best_server_stats = current_best_server
-        logger.debug("get best server")
+        logger.debug("Get best server")
         best_server = previous_best_server_stats["server"]
         return best_server

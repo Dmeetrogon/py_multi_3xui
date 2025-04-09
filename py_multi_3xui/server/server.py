@@ -1,6 +1,7 @@
 from py3xui import Client,Inbound, AsyncApi
 
 from py_multi_3xui.tools.regular_expressions import RegularExpressions as regularExpressions
+from py_multi_3xui.tools.converter import Converter
 from py_multi_3xui.managers.auth_cookie_manager import AuthCookieManager as cookieManager
 
 import uuid
@@ -87,21 +88,10 @@ class Server:
                          ) -> Client:
         logger.info("Generate client")
         #calculating how much the client will live(sound kinda sounds ambiguous,lol)
-        try:
-            epoch = datetime.datetime.fromtimestamp(0, datetime.UTC)
-            now_utc = datetime.datetime.now(datetime.UTC)
-        except AttributeError:
-            from datetime import timezone
-            epoch = datetime.datetime.fromtimestamp(0, timezone.utc)
-            now_utc = datetime.datetime.now(timezone.utc)
-        x_time = int((now_utc - epoch).total_seconds() * 1000.0)
-        MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000  # 86400000
-        MILLISECONDS_OFFSET = 3 * 60 * 60 * 1000  # 10800000
-        x_time += MILLISECONDS_PER_DAY * expiry_time - MILLISECONDS_OFFSET
-
+        total_time = Converter.convert_days_to_time(expiry_time)
         client = Client(id=str(uuid.uuid4()),
                          email=client_email,
-                         expiry_time=expiry_time,
+                         expiry_time=total_time,
                          enable=True,
                          flow="xtls-rprx-vision",
                          inbound_id=inbound_id,
@@ -114,6 +104,10 @@ class Server:
     async def add_client(self,client:Client):
         connection = self.connection
         await connection.client.add(inbound_id=client.inbound_id,clients=[client])
+    async def update_client(self, updated_client: Client) -> None:
+            logger.debug("update client")
+            connection = self.connection
+            await connection.client.update(updated_client.id, updated_client)
     async def get_config(self,client:Client):
         logger.debug("generate str config")
         connection = self.connection
@@ -141,10 +135,7 @@ class Server:
         logger.debug("get client by email")
         client =  await self.connection.client.get_by_email(email)
         return client
-    def update_client(self, updated_client:Client) -> None:
-        logger.debug("update client")
-        connection = self.connection
-        connection.client.update(updated_client.id,updated_client)
+
     def delete_client_by_uuid(self,client_uuid:str,
                                     inbound_id:int) -> None:
         logger.debug("delete client via uuid")

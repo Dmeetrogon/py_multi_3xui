@@ -88,7 +88,7 @@ class Server:
                          ) -> Client:
         logger.info("Generate client")
         #calculating how much the client will live(sound kinda sounds ambiguous,lol)
-        total_time = Converter.convert_days_to_time(expiry_time)
+        total_time = Converter.convert_days_to_milliseconds(expiry_time)
         client = Client(id=str(uuid.uuid4()),
                          email=client_email,
                          expiry_time=total_time,

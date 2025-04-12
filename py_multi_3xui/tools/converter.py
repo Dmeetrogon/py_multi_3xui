@@ -5,7 +5,7 @@ import logging
 logger = logging.getLogger(__name__)
 class Converter:
     @staticmethod
-    def convert_days_to_time(days: int)-> int:
+    def convert_days_to_milliseconds(days: int)-> int:
         logger.debug("converting days to valid time format")
         """
                 converts days to time format that used in 3x-ui
@@ -27,3 +27,10 @@ class Converter:
         MILLISECONDS_OFFSET = 3 * 60 * 60 * 1000  # 10800000
         x_time += MILLISECONDS_PER_DAY * days - MILLISECONDS_OFFSET
         return int(x_time)
+    @staticmethod
+    def convert_milliseconds_to_days(milliseconds:int)->int:
+        MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000
+        days = int(milliseconds / MILLISECONDS_PER_DAY)
+        return days
+
+

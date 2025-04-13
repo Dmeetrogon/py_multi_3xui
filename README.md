@@ -147,6 +147,11 @@ _If this project was helpful for you, you may wish star it or donate ^^_
 * **via [CryptoBot](https://t.me/send?start=IVFCR3tEjcyk)**
 * **via Ton: `UQCOKDO9dRYNe3Us8FDK2Ctz6B4fhsonaoKpK93bqneFAyJL`**
 
+##Plans:
+
+Update README.md(or add manual)
+Also planned to do code-review and remove six
+
 
 
 

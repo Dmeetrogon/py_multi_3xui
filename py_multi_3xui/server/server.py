@@ -3,6 +3,7 @@ from py3xui import Client,Inbound, AsyncApi
 from py_multi_3xui.tools.regular_expressions import RegularExpressions as regularExpressions
 from py_multi_3xui.tools.converter import Converter
 from py_multi_3xui.managers.auth_cookie_manager import AuthCookieManager as cookieManager
+from py_multi_3xui import ServerNotFoundException
 
 import uuid
 import datetime
@@ -61,6 +62,8 @@ class Server:
     @staticmethod
     def sqlite_answer_to_instance(answer:tuple):
         logger.debug("convert tuple to server instance")
+        if answer is None:
+            raise ServerNotFoundException("Server wasn't found in the db")
         return Server(answer[0],answer[1],answer[2],answer[3],answer[4],answer[5])
     @staticmethod
     def from_dict(server:dict[str,str|int|None]):

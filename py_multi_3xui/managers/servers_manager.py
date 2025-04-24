@@ -38,7 +38,9 @@ class ServerDataManager:
         with closing(sqlite3.connect(f"{self.db_path}")) as connection:
             with closing(connection.cursor()) as cursor:
                 logger.debug("get server by host")
-                cursor.execute(f"SELECT * FROM servers WHERE host = ?",(host,))
+                sql_query = "SELECT * FROM servers WHERE host LIKE ?"
+                search_pattern = f'%{host}%'
+                cursor.execute(sql_query, (search_pattern,))
                 connection.commit()
                 raw_tuple = cursor.fetchone()
                 logger.debug("successfully get server in the form of tuple")

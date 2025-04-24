@@ -3,10 +3,9 @@ from py3xui import Client,Inbound, AsyncApi
 from py_multi_3xui.tools.regular_expressions import RegularExpressions as regularExpressions
 from py_multi_3xui.tools.converter import Converter
 from py_multi_3xui.managers.auth_cookie_manager import AuthCookieManager as cookieManager
-from py_multi_3xui import ServerNotFoundException
+from py_multi_3xui.exceptions.exceptions import ServerNotFoundException
 
 import uuid
-import datetime
 import logging
 
 logger = logging.getLogger(__name__)
@@ -56,6 +55,10 @@ class Server:
             "secret_token":self.secret_token,
             "internet_speed":self.internet_speed
         }
+    def to_json(self):
+        json = self.to_dict()
+        json["Server"] = self.__class__.__name__
+        return json
     def __str__(self):
         logger.debug("Convert server to str")
         return f"{self.host}\n{self.username}\n{self.password}\n{self.secret_token}\n{self.location}\n{self.internet_speed}"
@@ -110,7 +113,14 @@ class Server:
     async def update_client(self, updated_client: Client) -> None:
             logger.debug("update client")
             connection = self.connection
-            await connection.client.update(updated_client.id, updated_client)
+            inbound = connection.inbound.get_by_id(inbound_id=updated_client.inbound_id)
+            user_email = updated_client.email
+            client_uuid = None
+            for c in inbound.settings.clients:
+                if c.email == user_email:
+                    client_uuid = c.id
+                    break
+            await connection.client.update(client_uuid, updated_client)
     async def get_config(self,client:Client):
         logger.debug("generate str config")
         connection = self.connection

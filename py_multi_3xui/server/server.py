@@ -45,6 +45,12 @@ class Server:
         self.__connection.session = cookie
         logger.debug("Get cookie")
         return self.__connection
+    def check_connection(self):
+        try:
+            conn = self.connection
+            return True
+        except:
+            return False
     def to_dict(self) -> dict[str,str|int|None]:
         logger.debug("Convert server's instance to dict")
         return {

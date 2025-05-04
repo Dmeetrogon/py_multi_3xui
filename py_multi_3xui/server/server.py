@@ -11,8 +11,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 class Server:
-    def __init__(self,location:str,host:str,username:str,password:str,internet_speed:int,secret_token:str = None):
+    def __init__(self,location:str,host:str,username:str,password:str,internet_speed:int,secret_token:str = None,use_tls_certification:bool = True):
         logger.debug("create server instance")
+        self.__use_tls_certification = use_tls_certification
         self.__location = location
         self.__host = host
         self.__password = password
@@ -27,6 +28,9 @@ class Server:
     def host(self):
         return self.__host
     @property
+    def use_tls_verification(self):
+        return self.__use_tls_certification
+    @property
     def password(self):
         return self.__password
     @property
@@ -40,7 +44,7 @@ class Server:
         return self.__internet_speed
     @property
     def connection(self):
-        logger.debug("Try to ger server cookie. Redirecting to AuthCookieManager")
+        logger.debug("Try to get a server cookie. Redirecting to AuthCookieManager")
         cookie = cookieManager.get_auth_cookie(server_dict=self.to_dict())
         self.__connection.session = cookie
         logger.debug("Get cookie")
@@ -48,8 +52,10 @@ class Server:
     def check_connection(self):
         try:
             conn = self.connection
+            logger.debug(f"successfully connect to {self.host}")
             return True
-        except:
+        except Exception as e:
+            logger.warning(f"Cannot to connect {self.host}. Reason: {e}")
             return False
     def to_dict(self) -> dict[str,str|int|None]:
         logger.debug("Convert server's instance to dict")
@@ -59,7 +65,8 @@ class Server:
             "password":self.password,
             "username":self.username,
             "secret_token":self.secret_token,
-            "internet_speed":self.internet_speed
+            "internet_speed":self.internet_speed,
+            "use_tls_certification":self.use_tls_verification
         }
     def to_json(self):
         json = self.to_dict()
@@ -83,12 +90,14 @@ class Server:
         username = server["username"]
         secret_token = server["secret_token"]
         internet_speed = server["internet_speed"]
+        use_tls_certification = bool(server["use_tls_certification"])
         return Server(host=host,
                       location=location,
                       username=username,
                       password=password,
                       secret_token=secret_token,
-                      internet_speed=internet_speed)
+                      internet_speed=internet_speed,
+                      use_tls_certification=use_tls_certification)
     @staticmethod
     def generate_client(client_email:str
                          ,inbound_id = 4

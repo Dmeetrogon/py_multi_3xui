@@ -13,6 +13,7 @@ class AuthCookieManager:
         password = server_dict["password"]
         username = server_dict["username"]
         secret_token = server_dict["secret_token"]
+        use_tls_certification = bool(server_dict["use_tls_certification"])
 
         cache = dc.Cache("/temp/cookie_cache")
         cached = cache.get(host)
@@ -26,7 +27,8 @@ class AuthCookieManager:
         connection = Api(host=host,
                          password=password,
                          username=username,
-                         token=secret_token)
+                         token=secret_token,
+                         use_tls_verify=use_tls_certification)
         created_at = time.time()
         connection.login()
         logger.debug("new cookie acquired")

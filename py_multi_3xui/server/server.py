@@ -20,28 +20,56 @@ class Server:
         self.__username = username
         self.__secret_token = secret_token
         self.__internet_speed = internet_speed
-        self.__connection = AsyncApi(host,username,password,secret_token)
+        self.__connection = AsyncApi(host,username,password,secret_token,use_tls_certification)
     @property
     def location(self):
         return self.__location
+    @location.setter
+    def location(self,value):
+        self.location = value
+
     @property
     def host(self):
         return self.__host
+    @host.setter
+    def host(self,value):
+        self.host = value
+
     @property
     def use_tls_verification(self):
         return self.__use_tls_certification
+    @use_tls_verification.setter
+    def use_tls_verification(self,value):
+        self.use_tls_verification = value
+
     @property
     def password(self):
         return self.__password
+    @password.setter
+    def password(self,value):
+        self.password = value
+
     @property
-    def username(self):
+    def admin_username(self):
         return self.__username
+    @admin_username.setter
+    def admin_username(self,value):
+        self.admin_username = value
+
     @property
     def secret_token(self):
         return self.__secret_token
+    @secret_token.setter
+    def secret_token(self,value):
+        self.secret_token = value
+
     @property
     def internet_speed(self):
         return self.__internet_speed
+    @internet_speed.setter
+    def internet_speed(self,value):
+        self.internet_speed = value
+
     @property
     def connection(self):
         logger.debug("Try to get a server cookie. Redirecting to AuthCookieManager")
@@ -63,7 +91,7 @@ class Server:
             "location":self.location,
             "host":self.host,
             "password":self.password,
-            "username":self.username,
+            "username":self.admin_username,
             "secret_token":self.secret_token,
             "internet_speed":self.internet_speed,
             "use_tls_certification":self.use_tls_verification
@@ -74,7 +102,7 @@ class Server:
         return json
     def __str__(self):
         logger.debug("Convert server to str")
-        return f"{self.host}\n{self.username}\n{self.password}\n{self.secret_token}\n{self.location}\n{self.internet_speed}"
+        return f"{self.host}\n{self.admin_username}\n{self.password}\n{self.secret_token}\n{self.location}\n{self.internet_speed}"
     @staticmethod
     def sqlite_answer_to_instance(answer:tuple):
         logger.debug("convert tuple to server instance")
@@ -146,11 +174,10 @@ class Server:
         user_uuid = str(uuid.uuid4())
         full_host_name = regularExpressions.get_host(self.host)
         connection_string = (
-            f"vless://{user_uuid}@{full_host_name}:443"#vless always listens on 443 port(normal ppl do like that)
+            f"vless://{user_uuid}@{full_host_name}:443"#vless + reality always listens on 443 port(normal ppl do like that)
             f"?type=tcp&security=reality&pbk={public_key}&fp=random&sni={website_name}"
             f"&sid={short_id}&spx=%2F#DeminVPN-{client.email}"
         )
-
         return connection_string
     async def get_inbounds(self) -> list[Inbound]:
         logger.debug("get inbounds")
@@ -163,7 +190,6 @@ class Server:
         logger.debug("get client by email")
         client =  await self.connection.client.get_by_email(email)
         return client
-
     def delete_client_by_uuid(self,client_uuid:str,
                                     inbound_id:int) -> None:
         logger.debug("delete client via uuid")

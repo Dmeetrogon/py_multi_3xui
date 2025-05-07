@@ -40,3 +40,6 @@ class AuthCookieManager:
         logger.info(f"updated cookie for {server_dict["host"]}")
         return new_cookie["value"]
 
+
+
+

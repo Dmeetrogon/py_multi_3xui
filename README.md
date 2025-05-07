@@ -147,10 +147,14 @@ _If this project was helpful for you, you may wish star it or donate ^^_
 * **via [CryptoBot](https://t.me/send?start=IVFCR3tEjcyk)**
 * **via Ton: `UQCOKDO9dRYNe3Us8FDK2Ctz6B4fhsonaoKpK93bqneFAyJL`**
 
-##Plans:
+## Plans:
 
-Update README.md(or add manual)
-Also planned to do code-review and remove six
+1.  Update README.md(or add manual)
+2.  Add better logging
+3.  Do code review and refactoring
+4.  Add ability to work not only with VLESS configs
+5.  Improve server.py
+6.  Improve database handle(add encryption,verification and etc)
 
 
 

@@ -40,6 +40,9 @@ class Server:
         return self.__use_tls_verification
     @use_tls_verification.setter
     def use_tls_verification(self,value):
+        logger.warning("it is not recommended to change 'use_tls_verification' property. It is not implemented properly")
+        if value != self.__use_tls_verification:
+            self.__connection = AsyncApi(self.host,self.admin_username,self.password,self.secret_token,value)
         self.__use_tls_verification = value
 
     @property
@@ -91,10 +94,10 @@ class Server:
             "location":self.location,
             "host":self.host,
             "password":self.password,
-            "username":self.admin_username,
+            "admin_username":self.admin_username,
             "secret_token":self.secret_token,
             "internet_speed":self.internet_speed,
-            "use_tls_certification":self.use_tls_verification
+            "use_tls_verification":self.use_tls_verification
         }
     def to_json(self):
         json = self.to_dict()
@@ -115,20 +118,20 @@ class Server:
         location = server["location"]
         host = server["host"]
         password = server["password"]
-        username = server["username"]
+        admin_username = server["admin_username"]
         secret_token = server["secret_token"]
         internet_speed = server["internet_speed"]
-        use_tls_certification = bool(server["use_tls_certification"])
+        use_tls_verification = bool(server["use_tls_verification"])
         return Server(host=host,
                       location=location,
-                      username=username,
+                      admin_username=admin_username,
                       password=password,
                       secret_token=secret_token,
                       internet_speed=internet_speed,
-                      use_tls_certification=use_tls_certification)
+                      use_tls_verification=use_tls_verification)
     @staticmethod
     def generate_client(client_email:str
-                         ,inbound_id = 4
+                         ,inbound_id:int
                          ,expiry_time = 30
                          ,limit_ip = 0
                          ,total_gb = 0
@@ -137,7 +140,7 @@ class Server:
                          ) -> Client:
         logger.info("Generate client")
         #calculating how much the client will live(sound kinda sounds ambiguous,lol)
-        total_time = Converter.convert_days_to_milliseconds(expiry_time)
+        total_time = Converter.convert_days_to_valid_3xui_time(expiry_time)
         client = Client(id=str(uuid.uuid4()),
                          email=client_email,
                          expiry_time=total_time,

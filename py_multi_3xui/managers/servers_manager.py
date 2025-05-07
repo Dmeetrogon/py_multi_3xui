@@ -21,7 +21,7 @@ class ServerDataManager:
                 try:
                     logger.debug("add server to db")
                     cursor.execute(f"INSERT INTO servers VALUES(? ,? ,? ,? ,?, ?)", (
-                    server.location, server.host, server.username, server.password, server.internet_speed,server.secret_token))
+                    server.location, server.host, server.admin_username, server.password, server.internet_speed,server.secret_token))
                     connection.commit()
                     logger.debug("successfully add")
                 except sqlite3.IntegrityError as e:

@@ -11,64 +11,64 @@ import logging
 logger = logging.getLogger(__name__)
 
 class Server:
-    def __init__(self,location:str,host:str,username:str,password:str,internet_speed:int,secret_token:str = None,use_tls_certification:bool = True):
+    def __init__(self,location:str,host:str,admin_username:str,password:str,internet_speed:int,secret_token:str = None,use_tls_verification:bool = True):
         logger.debug("create server instance")
-        self.__use_tls_certification = use_tls_certification
+        self.__use_tls_verification = use_tls_verification
         self.__location = location
         self.__host = host
         self.__password = password
-        self.__username = username
+        self.__admin_username = admin_username
         self.__secret_token = secret_token
         self.__internet_speed = internet_speed
-        self.__connection = AsyncApi(host,username,password,secret_token,use_tls_certification)
+        self.__connection = AsyncApi(host,admin_username,password,secret_token,use_tls_verification)
     @property
     def location(self):
         return self.__location
     @location.setter
     def location(self,value):
-        self.location = value
+        self.__location = value
 
     @property
     def host(self):
         return self.__host
     @host.setter
     def host(self,value):
-        self.host = value
+        self.__host = value
 
     @property
     def use_tls_verification(self):
-        return self.__use_tls_certification
+        return self.__use_tls_verification
     @use_tls_verification.setter
     def use_tls_verification(self,value):
-        self.use_tls_verification = value
+        self.__use_tls_verification = value
 
     @property
     def password(self):
         return self.__password
     @password.setter
     def password(self,value):
-        self.password = value
+        self.__password = value
 
     @property
     def admin_username(self):
-        return self.__username
+        return self.__admin_username
     @admin_username.setter
     def admin_username(self,value):
-        self.admin_username = value
+        self.__admin_username = value
 
     @property
     def secret_token(self):
         return self.__secret_token
     @secret_token.setter
     def secret_token(self,value):
-        self.secret_token = value
+        self.__secret_token = value
 
     @property
     def internet_speed(self):
         return self.__internet_speed
     @internet_speed.setter
     def internet_speed(self,value):
-        self.internet_speed = value
+        self.__internet_speed = value
 
     @property
     def connection(self):

@@ -142,7 +142,7 @@ server.delete_client_by_uuid(client_uuid=uuid,inbound_id=inbound_id)
 # Bugs and Features
  - - -
 Please report any bugs or feature requests by opening an issue on [GitHub issues](https://github.com/Dmeetrogon/py_multi_3xui/issues)
-(or you can DM me via Telegram: https://t.me/dmeetrogon)
+(or you can DM me via Telegram: https://t.me/dmeetprofile)
 
 ## Donate and support
 _If this project was helpful for you, you may wish star it or donate ^^_

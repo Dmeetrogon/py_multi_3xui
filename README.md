@@ -14,6 +14,7 @@ Used dependencies:
 Supported Python Versions:
 -  `3.11 `
 -  `3.12 `
+
 License:
 - MIT License
 

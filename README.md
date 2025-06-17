@@ -6,15 +6,16 @@ This module is based on [py3xui](https://github.com/iwatkot/py3xui).
 Used dependencies:
 -  `py3xui` for connecting and managing 3xui panels
 - - `py3xui` dependencies:
-- - `requests` for synchronous API
-- - `httpx` for asynchronous API
-- - `pydantic` for models
--  `six` (I just cannot make py3xui work without a last version of six. This will be fixed in next versions)
+    - - `requests` for synchronous API
+    - - `httpx` for asynchronous API
+    - - `pydantic` for models
 -  `diskcache` for storing 3xui cookies
 
 Supported Python Versions:
 -  `3.11 `
 -  `3.12 `
+License:
+- MIT License
 
 
 **_3x-ui is under development. py3xui also. I am not related with 3x-ui or py3xui. But the module supports py3xui>=0.3.4(and all version of 3x-ui that are being supported by py3xui)_**
@@ -140,6 +141,7 @@ server.delete_client_by_uuid(client_uuid=uuid,inbound_id=inbound_id)
 # Bugs and Features
  - - -
 Please report any bugs or feature requests by opening an issue on [GitHub issues](https://github.com/Dmeetrogon/py_multi_3xui/issues)
+(or you can DM me via Telegram: https://t.me/dmeetrogon)
 
 ## Donate and support
 _If this project was helpful for you, you may wish star it or donate ^^_
@@ -149,7 +151,7 @@ _If this project was helpful for you, you may wish star it or donate ^^_
 
 ## Plans:
 
-1.  Update README.md(or add manual)
+1.  Add manual
 2.  Add better logging
 3.  Do code review and refactoring
 4.  Add ability to work not only with VLESS configs

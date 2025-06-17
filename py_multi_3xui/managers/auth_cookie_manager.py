@@ -8,6 +8,11 @@ logger = logging.getLogger(__name__)
 class AuthCookieManager:
     @staticmethod
     def get_auth_cookie(server_dict:dict) -> str:
+        """
+        Get auth_cookie from cache. If it too old or does not exist, then create a new one
+        :param server_dict: a server in form of a dict
+        :return: Auth cookie for 3xui panel
+        """
         logger.debug(f"Getting auth_cookie for {server_dict["host"]}")
         host = server_dict["host"]
         password = server_dict["password"]
@@ -23,7 +28,6 @@ class AuthCookieManager:
                 logger.debug("Got cookie from memory")
                 return cached["value"]
         logger.debug("cookie was too old or it doesnt exist. creating new one.")
-
         connection = Api(host=host,
                          password=password,
                          username=admin_username,

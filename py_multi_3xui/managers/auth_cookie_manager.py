@@ -9,7 +9,7 @@ class AuthCookieManager:
     @staticmethod
     def get_auth_cookie(server_dict:dict) -> str:
         """
-        Get auth_cookie from cache. If it too old or does not exist, then create a new one
+        Get auth_cookie from cache. If it's too old or does not exist, then create a new one
         :param server_dict: a server in form of a dict
         :return: Auth cookie for 3xui panel
         """

@@ -24,7 +24,7 @@ class ServerDataManager:
         with sqlite3.connect(self.db_path) as con:
             cursor = con.cursor()
             logger.debug("connect to db. also creating it, if it does not exist")
-            cursor.execute("CREATE TABLE IF NOT EXISTS servers (location STRING,host STRING PRIMARY KEY,user STRING,password STRING,internet_speed INT,secret_token STRING)")
+            cursor.execute("CREATE TABLE IF NOT EXISTS servers (location STRING,host STRING PRIMARY KEY,user STRING,password STRING,internet_speed INT)")
             con.commit()
 
     @singledispatchmethod
@@ -47,8 +47,8 @@ class ServerDataManager:
             with closing(connection.cursor()) as cursor:
                 try:
                     logger.debug("add server to db")
-                    cursor.execute(f"INSERT INTO servers VALUES(? ,? ,? ,? ,?, ?)", (
-                    server.location, server.host, server.admin_username, server.password, server.internet_speed,server.secret_token))
+                    cursor.execute(f"INSERT INTO servers VALUES(? ,? ,? ,? ,?)", (
+                    server.location, server.host, server.admin_username, server.password, server.internet_speed))
                     connection.commit()
                     logger.debug("successfully add")
                 except sqlite3.IntegrityError as e:
@@ -61,7 +61,6 @@ class ServerDataManager:
                    admin_user:str,
                    password:str,
                    internet_speed:int,
-                   secret_token:str = None,
                    use_tls_verification:bool = True):
         """
                Adds a server to a SQL database from server's properties
@@ -71,14 +70,12 @@ class ServerDataManager:
                :param admin_user: username to access the 3xui
                :param password: password to access 3xui
                :param internet_speed: server's internet speed in GB/sec
-               :param secret_token: secret token to access 3xui(optional)
                :param use_tls_verification: use TLS verification(optional). Don't change if not needed
                :raises HostAlreadyExistException: raises if server(it's host) already exist in database
                :return: None
                """
         server = Server(location=location,
                         password=password,
-                        secret_token=secret_token,
                         internet_speed=internet_speed,
                         use_tls_verification=use_tls_verification,
                         host=host,

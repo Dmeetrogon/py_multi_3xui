@@ -37,13 +37,16 @@ from py_multi_3xui import ServerDataManager
 username = "Ben"
 password = "BenLoveApples123"
 host = "https://benserver.com:PORT/PATH/"
-secret_token = "very_secret_token"
 internet_speed = 5  # amount in gb per second.
 location = "usa"
 
 # to add a server to the db you need to create an instance of a server
-server = Server(username=username, password=password, host=host, location=location, secret_token=secret_token,
-                internet_speed=internet_speed)
+server = Server(admin_username=username,
+                password=password,
+                host=host,
+                location=location,
+                internet_speed=internet_speed,
+                use_tls_verification=True)#set true by standard
 
 data_manager = ServerDataManager()
 # after first call ServerDataManager.__init__() the servers.db will be created(if it already exists, it won't be created)

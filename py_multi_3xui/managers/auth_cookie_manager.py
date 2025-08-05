@@ -17,7 +17,6 @@ class AuthCookieManager:
         host = server_dict["host"]
         password = server_dict["password"]
         admin_username = server_dict["admin_username"]
-        secret_token = server_dict["secret_token"]
         use_tls_verification = bool(server_dict["use_tls_verification"])
 
         cache = dc.Cache("/temp/cookie_cache")
@@ -31,7 +30,6 @@ class AuthCookieManager:
         connection = Api(host=host,
                          password=password,
                          username=admin_username,
-                         token=secret_token,
                          use_tls_verify=use_tls_verification)
         created_at = time.time()
         connection.login()

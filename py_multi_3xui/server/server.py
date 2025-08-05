@@ -13,16 +13,18 @@ import logging
 logger = logging.getLogger(__name__)
 
 class Server:
-    def __init__(self,location:str,host:str,admin_username:str,password:str,internet_speed:int,secret_token:str = None,use_tls_verification:bool = True):
+    def __init__(self,location:str,host:str,admin_username:str,password:str,internet_speed:int,use_tls_verification:bool = True):
         logger.debug("create server instance")
         self.__use_tls_verification = use_tls_verification
         self.__location = location
         self.__host = host
         self.__password = password
         self.__admin_username = admin_username
-        self.__secret_token = secret_token
         self.__internet_speed = internet_speed
-        self.__connection = AsyncApi(host,admin_username,password,secret_token,use_tls_verification)
+        self.__connection = AsyncApi(host=host,
+                                     password=password,
+                                     use_tls_verify=use_tls_verification,
+                                     username=admin_username)
     @property
     def location(self):
         return self.__location
@@ -44,7 +46,7 @@ class Server:
     def use_tls_verification(self,value):
         logger.warning("it is not recommended to change 'use_tls_verification' property.")
         if value != self.__use_tls_verification:
-            self.__connection = AsyncApi(self.host,self.admin_username,self.password,self.secret_token,value)
+            self.__connection = AsyncApi(self.host,self.admin_username,self.password,value)
         self.__use_tls_verification = value
     @property
     def password(self):
@@ -58,12 +60,6 @@ class Server:
     @admin_username.setter
     def admin_username(self,value):
         self.__admin_username = value
-    @property
-    def secret_token(self):
-        return self.__secret_token
-    @secret_token.setter
-    def secret_token(self,value):
-        self.__secret_token = value
     @property
     def internet_speed(self):
         return self.__internet_speed
@@ -102,7 +98,6 @@ class Server:
             "host":self.host,
             "password":self.password,
             "admin_username":self.admin_username,
-            "secret_token":self.secret_token,
             "internet_speed":self.internet_speed,
             "use_tls_verification":self.use_tls_verification
         }
@@ -115,7 +110,7 @@ class Server:
         return json.dumps(str_json)
     def __str__(self):
         logger.debug("Convert server to str")
-        return f"{self.host}\n{self.admin_username}\n{self.password}\n{self.secret_token}\n{self.location}\n{self.internet_speed}\n"
+        return f"{self.host}\n{self.admin_username}\n{self.password}\n{self.location}\n{self.internet_speed}\n"
 
     async def add_client(self,client:Client):
         """
@@ -253,14 +248,12 @@ class Server:
         host = server["host"]
         password = server["password"]
         admin_username = server["admin_username"]
-        secret_token = server["secret_token"]
         internet_speed = server["internet_speed"]
         use_tls_verification = bool(server["use_tls_verification"])
         return Server(host=host,
                       location=location,
                       admin_username=admin_username,
                       password=password,
-                      secret_token=secret_token,
                       internet_speed=internet_speed,
                       use_tls_verification=use_tls_verification)
     @classmethod

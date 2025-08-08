@@ -169,10 +169,12 @@ class Server:
         inbound_id = client.inbound_id
         await self.delete_client_by_uuid(client_uuid,inbound_id)
 
-    async def get_config(self,client:Client):
+    async def get_config(self,client:Client,remark,port = 443):
         """
         Get string config by client instance.
-        (always configure the panel so that VLESS listens on port 443)
+        (always configure the panel so that VLESS listens on port 443. its good practice to hide yor traffic)
+        :param remark:
+        :param port: port for Reality setting
         :param client: py3xui client
         :return: string config
         """
@@ -182,12 +184,14 @@ class Server:
         public_key =  inbound.stream_settings.reality_settings.get("settings").get("publicKey")
         website_name = inbound.stream_settings.reality_settings.get("serverNames")[0]
         short_id = inbound.stream_settings.reality_settings.get("shortIds")[0]
+        mls_verify = inbound.stream_settings.reality_settings.get("settings").get("mldsa65Verify")
         user_uuid = str(uuid.uuid4())
         full_host_name = regularExpressions.get_host(self.host)
+
         connection_string = (
-            f"vless://{user_uuid}@{full_host_name}:443"#vless + reality always listens on 443 port(normal ppl do like that)
+            f"vless://{user_uuid}@{full_host_name}:{port}"#vless + reality always listens on 443 port(normal ppl do like that)
             f"?type=tcp&security=reality&pbk={public_key}&fp=random&sni={website_name}"
-            f"&sid={short_id}&spx=%2F#DeminVPN-{client.email}"
+            f"&sid={short_id}&spx=%2F&pqv={mls_verify}#{remark}-{client.email}"
         )
         return connection_string
 
@@ -217,7 +221,7 @@ class Server:
         :return: None
         """
         logger.debug("send backup to admins")
-        connection = self.connection
+        connection = await self.connection
         await connection.database.export()
 
     def to_dict(self) -> dict[str,str|int|None]:

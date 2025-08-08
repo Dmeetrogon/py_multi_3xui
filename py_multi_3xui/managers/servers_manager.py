@@ -1,7 +1,5 @@
 import json
 
-from py3xui import Client
-
 from py_multi_3xui.exceptions.exceptions import HostAlreadyExistException
 from py_multi_3xui.server.server import Server
 from py_multi_3xui.tools.enums import ExitDataFormat
@@ -24,7 +22,7 @@ class ServerDataManager:
         with sqlite3.connect(self.db_path) as con:
             cursor = con.cursor()
             logger.debug("connect to db. also creating it, if it does not exist")
-            cursor.execute("CREATE TABLE IF NOT EXISTS servers (location STRING,host STRING PRIMARY KEY,user STRING,password STRING,internet_speed INT)")
+            cursor.execute("CREATE TABLE IF NOT EXISTS servers (location STRING,host STRING PRIMARY KEY,user STRING,password STRING,internet_speed INT,use_tls_certification BOOLEAN,secret_code_for_2FA STRING)")
             con.commit()
 
     @singledispatchmethod
@@ -40,15 +38,15 @@ class ServerDataManager:
         Adds a server to a SQL database
 
         :param server: py_multi_3xui.Server instance
-        :raises HostAlreadyExistException: if server(it's host) already exist in database
+        :raises HostAlreadyExistException: if server(it's host especially) already exist in database
         :return: None
         """
         with closing(sqlite3.connect(f"{self.db_path}")) as connection:
             with closing(connection.cursor()) as cursor:
                 try:
                     logger.debug("add server to db")
-                    cursor.execute(f"INSERT INTO servers VALUES(? ,? ,? ,? ,?)", (
-                    server.location, server.host, server.admin_username, server.password, server.internet_speed))
+                    cursor.execute(f"INSERT INTO servers VALUES(? ,? ,? ,? ,?,?)", (
+                    server.location, server.host, server.admin_username, server.password, server.internet_speed,server.secret_token_for_2FA))
                     connection.commit()
                     logger.debug("successfully add")
                 except sqlite3.IntegrityError as e:
@@ -61,7 +59,8 @@ class ServerDataManager:
                    admin_user:str,
                    password:str,
                    internet_speed:int,
-                   use_tls_verification:bool = True):
+                   use_tls_verification:bool = True,
+                   secret_token_for_2FA = None):
         """
                Adds a server to a SQL database from server's properties
 
@@ -79,7 +78,8 @@ class ServerDataManager:
                         internet_speed=internet_speed,
                         use_tls_verification=use_tls_verification,
                         host=host,
-                        admin_username= admin_user)
+                        admin_username= admin_user,
+                        secret_token_for_2FA=secret_token_for_2FA)
         self.add_server(server=server)
     @add_server.register
     def _(self, json_str:str):
@@ -189,7 +189,7 @@ class ServerDataManager:
         best_server_stats = {"server":servers[0],
                                       "traffic_per_client":0}
         for server in servers:
-            total_clients = server.get_amount_of_client()
+            total_clients = server.get_amount_of_clients()
             traffic_per_client = server.internet_speed / total_clients
             curr_server = {"server":server,
                                     "traffic_per_client":traffic_per_client}
@@ -211,7 +211,7 @@ class ServerDataManager:
         api = server.connection
         inbounds = await api.inbound.get_list()
         amount_of_inbounds =  len(inbounds)
-        amount_of_clients = await server.get_amount_of_client()
+        amount_of_clients = await server.get_amount_of_clients()
         usage_ratio = amount_of_clients / server.internet_speed
         if exit_format == ExitDataFormat.STRING:
             output_string = ("Standard info:\n" +

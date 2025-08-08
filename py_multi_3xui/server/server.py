@@ -13,7 +13,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 class Server:
-    def __init__(self,location:str,host:str,admin_username:str,password:str,internet_speed:int,use_tls_verification:bool = True):
+    def __init__(self, location:str, host:str, admin_username:str, password:str, internet_speed:int, use_tls_verification:bool = True, secret_token_for_2FA:str=None):
         logger.debug("create server instance")
         self.__use_tls_verification = use_tls_verification
         self.__location = location
@@ -21,10 +21,11 @@ class Server:
         self.__password = password
         self.__admin_username = admin_username
         self.__internet_speed = internet_speed
+        self.__secret_token_for_2FA = secret_token_for_2FA
         self.__connection = AsyncApi(host=host,
                                      password=password,
-                                     use_tls_verify=use_tls_verification,
-                                     username=admin_username)
+                                     username=admin_username,
+                                     use_tls_verify=use_tls_verification,)
     @property
     def location(self):
         return self.__location
@@ -48,69 +49,56 @@ class Server:
         if value != self.__use_tls_verification:
             self.__connection = AsyncApi(self.host,self.admin_username,self.password,value)
         self.__use_tls_verification = value
+
     @property
     def password(self):
         return self.__password
     @password.setter
     def password(self,value):
         self.__password = value
+
     @property
     def admin_username(self):
         return self.__admin_username
     @admin_username.setter
     def admin_username(self,value):
         self.__admin_username = value
+
     @property
     def internet_speed(self):
         return self.__internet_speed
     @internet_speed.setter
     def internet_speed(self,value):
         self.__internet_speed = value
+
     @property
-    def connection(self):
+    async def connection(self):
         logger.debug("Try to get a server cookie. Redirecting to AuthCookieManager")
-        cookie = cookieManager.get_auth_cookie(server_dict=self.to_dict())
-        self.__connection.session = cookie
+        auth = await cookieManager.get_logged_api(server_dict=self.to_dict())
+        self.__connection = auth
         logger.debug("Get cookie")
         return self.__connection
 
-    def check_connection(self):
+    @property
+    def secret_token_for_2FA(self):
+        return self.__secret_token_for_2FA
+    @secret_token_for_2FA.setter
+    def secret_token_for_2FA(self,value):
+        self.__secret_token_for_2FA = value
+
+    async def check_connection(self) -> bool:
         """
         Check availability of the 3xui panel
         :return: Availability
         """
         try:
-            conn = self.connection
-            conn.inbound.get_list()
+            conn = await self.connection
+            await conn.inbound.get_list()
             logger.debug(f"successfully connect to {self.host}")
             return True
         except Exception as e:
             logger.warning(f"Cannot to connect {self.host}. Reason: {e}")
             return False
-    def to_dict(self) -> dict[str,str|int|None]:
-        """
-        Converts servers instance to a dict
-        :return: a server in form of a dict
-        """
-        logger.debug("Convert server's instance to dict")
-        return {
-            "location":self.location,
-            "host":self.host,
-            "password":self.password,
-            "admin_username":self.admin_username,
-            "internet_speed":self.internet_speed,
-            "use_tls_verification":self.use_tls_verification
-        }
-    def to_json(self):
-        """
-        Converts server to JSON string
-        :return: JSON str
-        """
-        str_json = self.to_dict()
-        return json.dumps(str_json)
-    def __str__(self):
-        logger.debug("Convert server to str")
-        return f"{self.host}\n{self.admin_username}\n{self.password}\n{self.location}\n{self.internet_speed}\n"
 
     async def add_client(self,client:Client):
         """
@@ -118,15 +106,15 @@ class Server:
         :param client: py3xui.Client
         :return: None
         """
-        connection = self.connection
+        connection = await self.connection
         await connection.client.add(inbound_id=client.inbound_id,clients=[client])
-    async def get_amount_of_client(self):
+    async def get_amount_of_clients(self):
         """
         Get amount of clients of the server
         :return: Total amount of clients
         """
         total_clients = 0
-        api = self.connection
+        api = await self.connection
         inbounds = await api.inbound.get_list()
         for inbound in inbounds:
              try:
@@ -137,13 +125,13 @@ class Server:
         return  total_clients
     async def update_client(self, updated_client: Client) -> None:
         """
-        Update client by its new instance
+        Update client by its new instance. Client must be in the same inbound as its old version
 
         :param updated_client: a new(updated) instance of a py3xui Client
         :return: None
         """
         logger.debug("update client")
-        connection = self.connection
+        connection = await self.connection
         inbound = connection.inbound.get_by_id(inbound_id=updated_client.inbound_id)
         user_email = updated_client.email
         client_uuid = None
@@ -152,6 +140,35 @@ class Server:
                 client_uuid = c.id
                 break
         await connection.client.update(client_uuid, updated_client)
+    async def get_client_by_email(self,email :str) -> Client:
+        """
+        Get client by its email
+        :param email: client email(unique for panel, not inbounds)
+        :return: Client
+        """
+        logger.debug("get client by email")
+        connection = await self.connection
+        client =  await connection.client.get_by_email(email)
+        return client
+    async def delete_client_by_uuid(self,client_uuid:str,
+                                    inbound_id:int) -> None:
+        """
+        Delete client by its uuid
+        :param client_uuid: client uuid
+        :param inbound_id: inbound id
+        :return: None
+        """
+        logger.debug("delete client via uuid")
+        connection = await self.connection
+        connection.client.delete(inbound_id=inbound_id,client_uuid=client_uuid)
+    async def delete_client_by_email(self,client_email:str) -> None:
+        logger.debug("delete client by email")
+        connection = await self.connection
+        client = await connection.client.get_by_email(client_email)
+        client_uuid = client.id
+        inbound_id = client.inbound_id
+        await self.delete_client_by_uuid(client_uuid,inbound_id)
+
     async def get_config(self,client:Client):
         """
         Get string config by client instance.
@@ -160,7 +177,7 @@ class Server:
         :return: string config
         """
         logger.debug("generate str config")
-        connection = self.connection
+        connection = await self.connection
         inbound = await connection.inbound.get_by_id(inbound_id=client.inbound_id)
         public_key =  inbound.stream_settings.reality_settings.get("settings").get("publicKey")
         website_name = inbound.stream_settings.reality_settings.get("serverNames")[0]
@@ -173,13 +190,15 @@ class Server:
             f"&sid={short_id}&spx=%2F#DeminVPN-{client.email}"
         )
         return connection_string
+
     async def get_inbounds(self) -> list[Inbound]:
         """
         Get panel's inbounds
         :return: A list of inbounds
         """
         logger.debug("get inbounds")
-        return await self.connection.inbound.get_list()
+        connection = await self.connection
+        return await connection.inbound.get_list()
     async def get_inbound_by_id(self,inbound_id: int) -> Inbound:
         """
         Get inbound by its id
@@ -188,54 +207,62 @@ class Server:
         :return: None
         """
         logger.debug("get inbound by id")
-        inbound = await self.connection.inbound.get_by_id(inbound_id)
+        connection = await self.connection
+        inbound = await connection.inbound.get_by_id(inbound_id)
         return inbound
-    async def get_client_by_email(self,email :str) -> Client:
-        """
-        Get client by its email
-        :param email: client email(unique for panel, not inbounds)
-        :return: Client
-        """
-        logger.debug("get client by email")
-        client =  await self.connection.client.get_by_email(email)
-        return client
-    def delete_client_by_uuid(self,client_uuid:str,
-                                    inbound_id:int) -> None:
-        """
-        Delete client by its uuid
-        :param client_uuid: client uuid
-        :param inbound_id: inbound id
-        :return: None
-        """
-        logger.debug("delete client via uuid")
-        connection = self.connection
-        connection.client.delete(inbound_id=inbound_id,client_uuid=client_uuid)
-    async def delete_client_by_email(self,client_email:str) -> None:
-        logger.debug("delete client by email")
-        connection =  self.connection
-        client = await connection.client.get_by_email(client_email)
-        client_uuid = client.id
-        inbound_id = client.inbound_id
-        self.delete_client_by_uuid(client_uuid,inbound_id)
-    def send_backup(self) -> None:
+
+    async def send_backup(self) -> None:
         """
         Send a backup of a 3xui panel to admins in Telegram bot
         :return: None
         """
         logger.debug("send backup to admins")
         connection = self.connection
-        connection.database.export()
+        await connection.database.export()
+
+    def to_dict(self) -> dict[str,str|int|None]:
+        """
+        Converts servers instance to a dict
+        :return: a server in form of a dict
+        """
+        logger.debug("Convert server's instance to dict")
+        return {
+            "location":self.location,
+            "host":self.host,
+            "password":self.password,
+            "admin_username":self.admin_username,
+            "internet_speed":self.internet_speed,
+            "use_tls_verification":self.use_tls_verification,
+            "secret_token_for_2FA":self.secret_token_for_2FA
+        }
+    def to_json(self):
+        """
+        Converts server to JSON string
+        :return: JSON str
+        """
+        str_json = self.to_dict()
+        return json.dumps(str_json)
+    def __str__(self):
+        logger.debug("Convert server to str")
+        return f"{self.host}\n{self.admin_username}\n{self.password}\n{self.location}\n{self.internet_speed}\n{self.__secret_token_for_2FA}"
+
     @staticmethod
     def sqlite_answer_to_instance(answer: tuple):
         """
-        Converts a server if a form of a tuple to an instance
+        Converts a server if a form of a tuple from db to an instance
         :param answer:
         :return:
         """
         logger.debug("convert tuple to server instance")
         if answer is None:
             raise ServerNotFoundException("Server wasn't found in the db")
-        return Server(answer[0], answer[1], answer[2], answer[3], answer[4], answer[5])
+        return Server(location=answer[0],
+                      host=answer[1],
+                      admin_username=answer[2],
+                      password=answer[3],
+                      internet_speed=answer[4],
+                      use_tls_verification=answer[5],
+                      secret_token_for_2FA=answer[6])
     @classmethod
     def from_dict(cls, server: dict[str, str | int | None]):
         """
@@ -250,12 +277,14 @@ class Server:
         admin_username = server["admin_username"]
         internet_speed = server["internet_speed"]
         use_tls_verification = bool(server["use_tls_verification"])
+        secret_token_for_2FA = server["secret_token_for_2FA"]
         return Server(host=host,
                       location=location,
                       admin_username=admin_username,
                       password=password,
                       internet_speed=internet_speed,
-                      use_tls_verification=use_tls_verification)
+                      use_tls_verification=use_tls_verification,
+                      secret_token_for_2FA=secret_token_for_2FA)
     @classmethod
     def from_json(cls, server_json: str):
         data = json.loads(server_json)
@@ -297,5 +326,3 @@ class Server:
                         down=down
                         )
         return client
-
-

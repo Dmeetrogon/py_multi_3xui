@@ -3,7 +3,7 @@ import diskcache as dc
 import pyotp
 import requests
 
-from py3xui import Api
+from py3xui import Api, AsyncApi
 import logging
 logger = logging.getLogger(__name__)
 
@@ -11,7 +11,7 @@ cache_path = "/temp/cookie_cache"
 
 class AuthCookieManager:
     @staticmethod
-    def get_auth_cookie(server_dict:dict) -> str:
+    async def  get_logged_api(server_dict:dict) -> AsyncApi:
         """
         Get auth_cookie from cache. If it's too old or does not exist, then create a new one
         :param server_dict: a server in form of a dict
@@ -29,56 +29,35 @@ class AuthCookieManager:
             age = time.time() - cached["created_at"]
             if age < 3600:
                 cookie = cached["value"]
-                if AuthCookieManager.check_auth_cookie(session=cookie,
-                                                       host=host):
-                    logger.debug("Got cookie from memory")
-                    return cookie
-
-
-
-        logger.debug("cookie was old/incorrect. creating new one.")
-        connection = Api(host=host,
+                logger.debug("Got auth from memory")
+                return cookie
+        logger.debug("auth was old/incorrect. creating new one.")
+        connection = AsyncApi(host=host,
                          password=password,
                          username=admin_username,
                          use_tls_verify=use_tls_verification)
         created_at = time.time()
         totp = pyotp.TOTP(secret_token_for_2FA)
-        connection.login(totp.now())
-        logger.debug("new cookie acquired")
+        await connection.login(totp.now())
+        logger.debug("new auth acquired")
         new_cookie = {
-            "value":connection.session,
+            "value":connection,
             "created_at":created_at
         }
         cache.set(host,new_cookie,expire=3600)
-        logger.info(f"updated cookie for {server_dict["host"]}")
+        logger.info(f"updated auth for {server_dict["host"]}")
         return new_cookie["value"]
     @staticmethod
-    def check_auth_cookie(session:str,host:str):
-        url = f"{host}/api/inbounds/list"
-        headers = {
-            'Cookie': f'session={session}'
-        }
-        try:
-            response = requests.get(url, headers=headers)
-            if response.status_code == 200:
-                return True
-            elif response.status_code == 401:
-                return False
-            else:
-                return False
-        except requests.exceptions.RequestException as e:
-            return False
-    @staticmethod
-    def clear_all_cookies():
+    def clear_all_auth():
         """
-       Delete ALL cached cookie.
+       Delete ALL cached auth.
         """
         with dc.Cache(cache_path) as cache:
             cache.clear()
     @staticmethod
-    def delete_cookie_by_host(host: str):
+    def delete_auth_by_host(host: str):
         """
-        delete cookie for one server.
+        delete auth for one server.
         """
         with dc.Cache(cache_path) as cache:
             cache.delete(host)

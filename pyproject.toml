@@ -3,7 +3,7 @@ requires = ["setuptools>=42","wheel"]
 build-backend = "setuptools.build_meta"
 [project]
 name = "py_multi_3xui"
-version = "1.1.0"
+version = "1.2.0"
 authors = [
   { name="Dmeetrogon", email="dmeetrogon@example.com" },
 ]
@@ -16,10 +16,11 @@ classifiers = [
     "Operating System :: OS Independent",
     "License :: OSI Approved :: MIT License",
 ]
-keywords = ["vpn","3x-ui"]
+keywords = ["vpn","3x-ui","vless","reality","vless+reality","x-ui","SDK","py3xui"]
 dependencies = [
     "py3xui>=0.3.4",
-    "diskcache>=5.6.3"
+    "diskcache>=5.6.3",
+    "pyotp>=2.9.0"
 ]
 [project.urls]
 Homepage = "https://github.com/Dmeetrogon/py_multi_3xui"

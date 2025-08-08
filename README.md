@@ -1,4 +1,8 @@
 
+
+NOTE SECRET TOKEN WAS REMOVED IN THE LATEST VERSION OF THE 3X-UI.
+PY_MULTI_3XUI DOES NOT SUPPORT SECRET TOKEN FEATURE FROM NOW ON IN NEW VERSIONS 
+
 # multi_3x_ui
 A tool for managing multiple 3x-ui panels at once. 
 ## Overview

@@ -1,4 +1,5 @@
 import json
+from typing import Any, Coroutine
 
 from py_multi_3xui.exceptions.exceptions import HostAlreadyExistException
 from py_multi_3xui.server.server import Server
@@ -45,8 +46,8 @@ class ServerDataManager:
             with closing(connection.cursor()) as cursor:
                 try:
                     logger.debug("add server to db")
-                    cursor.execute(f"INSERT INTO servers VALUES(? ,? ,? ,? ,?,?)", (
-                    server.location, server.host, server.admin_username, server.password, server.internet_speed,server.secret_token_for_2FA))
+                    cursor.execute(f"INSERT INTO servers VALUES(? ,? ,? ,? , ?, ?, ?)", (
+                    server.location, server.host, server.admin_username, server.password, server.internet_speed,server.use_tls_verification,server.secret_token_for_2FA))
                     connection.commit()
                     logger.debug("successfully add")
                 except sqlite3.IntegrityError as e:
@@ -70,6 +71,7 @@ class ServerDataManager:
                :param password: password to access 3xui
                :param internet_speed: server's internet speed in GB/sec
                :param use_tls_verification: use TLS verification(optional). Don't change if not needed
+               :param secret_token_for_2FA: token for TOPT(optional).
                :raises HostAlreadyExistException: raises if server(it's host) already exist in database
                :return: None
                """
@@ -80,10 +82,16 @@ class ServerDataManager:
                         host=host,
                         admin_username= admin_user,
                         secret_token_for_2FA=secret_token_for_2FA)
-        self.add_server(server=server)
+        self.add_server(server)
     @add_server.register
-    def _(self, json_str:str):
-        server = Server.from_json(json_str)
+    def _(self, server_json:str):
+        """
+         Add server to a SQL database from server's json
+         :param server_json: server in a from of json string
+         :raises HostAlreadyExistException: raises if server(it's host) already exist in database
+         :return: None
+         """
+        server = Server.from_json(server_json)
         self.add_server(server)
     def delete_server(self, host:str):
         """
@@ -133,9 +141,9 @@ class ServerDataManager:
                 return available
     def get_servers_by_location(self,location:str) -> list[Server]:
         """
-        Gets all servers in location
+        Gets all servers in chosen location
         :param location:
-        :return: list of servers(instances) in chosen location
+        :return: List of servers(instances) in chosen location
         """
         servers_list = []
         with closing(sqlite3.connect(f"{self.db_path}")) as connection:
@@ -208,7 +216,7 @@ class ServerDataManager:
         :param server: server
         :return: server's properties in chosen format
         """
-        api = server.connection
+        api = await server.connection
         inbounds = await api.inbound.get_list()
         amount_of_inbounds =  len(inbounds)
         amount_of_clients = await server.get_amount_of_clients()

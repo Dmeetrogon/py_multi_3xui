@@ -248,7 +248,7 @@ class Server:
         return json.dumps(str_json)
     def __str__(self):
         logger.debug("Convert server to str")
-        return f"{self.host}\n{self.admin_username}\n{self.password}\n{self.location}\n{self.internet_speed}\n{self.__secret_token_for_2FA}"
+        return f"{self.host}\n{self.admin_username}\n{self.password}\n{self.location}\n{self.internet_speed}\n{self.use_tls_verification}\n{self.secret_token_for_2FA}"
 
     @staticmethod
     def sqlite_answer_to_instance(answer: tuple):

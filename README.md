@@ -12,7 +12,7 @@
 
 ---
 
-> **Note:** Secret token feature was removed from 3x-ui in 2.6.0. From now this feature doesn't supported by py_multi_3xui and py3xui.
+> **Note:** Secret token feature was removed from 3x-ui in 2.6.0. From now this feature doesn't supported by py_multi_3xui and py3xui. Please, edit your constructors and databases
 
 ---
 
@@ -45,7 +45,7 @@ This module is based on **[py3xui](https://github.com/iwatkot/py3xui).**
 
 **License:** MIT License  
 
-> _3x-ui is under development. py3xui also. I am not related with 3x-ui or py3xui. But the module supports py3xui >= 0.3.4 (and all version of 3x-ui that are being supported by py3xui)._
+> _3x-ui is under development. py3xui also. I am not related with 3x-ui or py3xui. This project is only for educational purposes_
 
 ---
 
@@ -70,13 +70,15 @@ password = "BenLoveApples123"
 host = "https://benserver.com:PORT/PATH/"
 internet_speed = 5  # amount in gb per second.
 location = "usa"
+secret_token_for_2FA = "32secretbase32"
 
 server = Server(admin_username=username,
                 password=password,
                 host=host,
                 location=location,
                 internet_speed=internet_speed,
-                use_tls_verification=True)
+                use_tls_verification=True,
+                secret_token_for_2FA=secret_token_for_2FA)
 
 data_manager = ServerDataManager()
 data_manager.add_server(server)
@@ -105,7 +107,7 @@ from py_multi_3xui import ServerDataManager
 manager = ServerDataManager()
 location = "usa"
 best_server = await manager.choose_best_server_by_location(location)
-print(best_server.__str__())
+print(best_server)
 ```
 
 ---
@@ -114,12 +116,10 @@ print(best_server.__str__())
 
 ### 🆕 Generate client (not add)
 ```python
-server = ...
-from py3xui import Client
-
-client = Client()
 
 from py_multi_3xui import RandomStuffGenerator as rsg
+from py_multi_3xui import Server
+from py3xui import Client
 
 total_gb = 30
 inbound_id = 4
@@ -129,7 +129,8 @@ expiry_time = 30
 up = 0
 down = 0
 
-client = server.generate_client(total_gb=total_gb,
+#note, generate. NOT ADD. This method returns only client instance
+client = Server.generate_client(total_gb=total_gb,
                                 inbound_id=inbound_id,
                                 limit_ip=limit_ip,
                                 client_email=client_email,
@@ -145,9 +146,11 @@ client = server.generate_client(total_gb=total_gb,
 ```python
 from py_multi_3xui import Server
 from py3xui import Client
+
 server = ...
 client = ...
-server.add_client(client)
+
+await server.add_client(client)
 ```
 
 ---
@@ -155,10 +158,13 @@ server.add_client(client)
 ### ✏️ Edit/Update client
 ```python
 from py3xui import Client
+from py_multi_3xui import Server
+
 server = ...
 client = await server.get_client_by_email("some_email")
 client.up = 50
-client.down = 30
+client.down = 30#just edit some client's fields
+
 server.update_client(client)
 ```
 
@@ -171,7 +177,7 @@ from py3xui import Client
 server = ...
 client = ...
 remark = "MyAwesomeVPN"
-port = 443# standard setting for VLESS+Reality
+port = 443# standard port for VLESS+Reality combo
 config = server.get_config(client,remark,port)
 ```
 
@@ -203,7 +209,7 @@ If this project was helpful for you:
 
 ## 📌 Plans
 - [ ] Add manual
-- [ ] Add ability to work not only with VLESS configs
+- [ ] Add ability to work not only with VLESS+Reality configs
 - [ ] Improve database (add encryption, verification and etc)  
 
 

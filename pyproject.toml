@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 name = "py_multi_3xui"
 version = "1.2.1"
 authors = [
-  { name="Dmeetrogon", email="dmeetrogon@example.com" },
+  { name="Dmeetrogon", email="dmeetrogon@egmail.com" },
 ]
 description = "module for managing multiple 3x-ui panels"
 readme = "README.md"
@@ -16,9 +16,9 @@ classifiers = [
     "Operating System :: OS Independent",
     "License :: OSI Approved :: MIT License",
 ]
-keywords = ["vpn","3x-ui","vless","reality","vless+reality","x-ui","SDK","py3xui"]
+keywords = ["vpn","3x-ui","vless","reality","vless+reality","x-ui","SDK","py3xui","x-ui","proxy"]
 dependencies = [
-    "py3xui>=0.3.4",
+    "py3xui>=0.5.1",
     "diskcache>=5.6.3",
     "pyotp>=2.9.0"
 ]
